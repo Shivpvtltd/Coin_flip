@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const countdownDisplay = document.getElementById('countdown-display');
 
     // --- Config & State ---
-    const API_BASE_URL = 'https://coinflip-backend-1.onrender.com'; 
+    const API_BASE_URL = 'https://coinflip-backend-1.onrender.com';  // ✅ FIXED line
     let USER_ID = null;
     const MIN_BET = 1;
     let MAX_BET = 100000;
@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
         balance: 0,
         history: [],
         isFlipping: false,
-        gameReady: false, // Prevents playing before initialization
+        gameReady: false,
     };
-    
+
     const getUserId = () => {
         try {
             const tg = window.Telegram.WebApp;
@@ -43,13 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return "demo_user_local_test";
     };
 
-    // --- Countdown Logic ---
     const showCountdown = (callback) => {
         let count = 3;
         const interval = setInterval(() => {
             countdownDisplay.textContent = count;
             countdownDisplay.classList.remove('visible');
-            void countdownDisplay.offsetWidth; // Trigger reflow
+            void countdownDisplay.offsetWidth;
             countdownDisplay.classList.add('visible');
 
             count--;
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     };
 
-    // --- Core Game Flow ---
     const initiateBet = async (choice) => {
         if (state.isFlipping) return;
 
@@ -82,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resultText.textContent = "Get Ready...";
 
         try {
-            // Pre-fetch result from backend BEFORE countdown/animation
             const response = await fetch(`${API_BASE_URL}/api/bet`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -91,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultData = await response.json();
             if (!response.ok) throw new Error(resultData.error || 'API request failed');
 
-            // Now that we have the result, start the countdown
             showCountdown(() => {
                 playAnimationAndRevealResult(resultData, betAmount);
             });
@@ -105,27 +101,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Controlled Animation and Result Reveal ---
     const playAnimationAndRevealResult = (resultData, betAmount) => {
         resultText.textContent = "Flipping...";
 
-        // Reset animation states and trigger flip
         coinWrapper.style.animation = 'none';
         coin.style.animation = 'none';
-        void coin.offsetWidth; // Trigger reflow
-        coinWrapper.style.animation = `toss-arc ${ANIMATION_DURATION/1000}s cubic-bezier(0.3, 0, 0.45, 1) forwards`;
-        coin.style.animation = `spin ${ANIMATION_DURATION/1000}s cubic-bezier(0.3, 0, 0.45, 1) forwards`;
+        void coin.offsetWidth;
+        coinWrapper.style.animation = `toss-arc ${ANIMATION_DURATION / 1000}s cubic-bezier(0.3, 0, 0.45, 1) forwards`;
+        coin.style.animation = `spin ${ANIMATION_DURATION / 1000}s cubic-bezier(0.3, 0, 0.45, 1) forwards`;
 
         setTimeout(() => {
             const { result, winning_side, new_balance } = resultData;
-            
-            // Stop animation and FORCE the result side
-            coin.style.animation = 'none'; 
-            coin.style.transform = winning_side === 'tails' ? 'rotateY(180deg)' : 'rotateY(0deg)';
 
+            coin.style.animation = 'none';
+            coin.style.transform = winning_side === 'tails' ? 'rotateY(180deg)' : 'rotateY(0deg)';
             state.balance = new_balance;
 
-            // Show win/loss toast
             if (result === 'win') {
                 const profit = (betAmount * 0.91).toFixed(2);
                 showToast(`You Won ₹${profit}!`, 'win');
@@ -133,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast(`You Lost ₹${betAmount.toFixed(2)}`, 'loss');
             }
 
-            // Update history and UI, then re-enable controls
             updateHistory(winning_side);
             updateUI();
             state.isFlipping = false;
@@ -147,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, ANIMATION_DURATION);
     };
 
-    // --- UI & State Helpers ---
     const updateUI = () => {
         walletAmountSpan.textContent = `₹${state.balance.toFixed(2)}`;
         MAX_BET = Math.floor(state.balance);
@@ -166,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         betMaxBtn.disabled = !isGameActive;
         if (isGameActive) updateBetButtonsState();
     };
-    
+
     const handleBetChange = (amount) => {
         const maxPossibleBet = Math.floor(Math.min(state.balance, 100000));
         let newAmount = parseInt(amount, 10) || 0;
@@ -189,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         betPlusBtn.disabled = currentBet >= maxPossibleBet || maxPossibleBet < MIN_BET;
         betMaxBtn.disabled = currentBet === maxPossibleBet || state.balance < MIN_BET;
     };
-    
+
     const showToast = (message, type) => {
         toast.textContent = message;
         toast.className = `toast-notification show ${type}`;
@@ -212,9 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- Game Initialization ---
     const initializeGame = async () => {
-        if (state.gameReady) return; // Prevent re-initialization
+        if (state.gameReady) return;
         USER_ID = getUserId();
         if (!USER_ID) {
             showToast("Could not identify user. Please restart.", "loss");
@@ -229,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
             if (data.error) throw new Error(data.error);
-            
+
             state.balance = data.wallet_balance;
             state.gameReady = true;
             updateUI();
@@ -242,15 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Event Listeners & App Start ---
     const isTelegram = () => !!(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData);
 
     if (isTelegram()) {
         window.Telegram.WebApp.ready();
     }
-    
-    initializeGame(); // Start the game automatically
-    
+
+    initializeGame();
+
     headsButton.addEventListener('click', () => initiateBet('heads'));
     tailsButton.addEventListener('click', () => initiateBet('tails'));
     betAmountInput.addEventListener('input', () => handleBetChange(betAmountInput.value));
@@ -259,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             handleBetChange(MIN_BET);
         }
     });
-    // --- MODIFIED LINES AS PER REQUEST ---
+
     betMinusBtn.addEventListener('click', () => handleBetChange(parseInt(betAmountInput.value, 10) - 1));
     betPlusBtn.addEventListener('click', () => handleBetChange(parseInt(betAmountInput.value, 10) + 1));
     betMinBtn.addEventListener('click', () => handleBetChange(MIN_BET));
