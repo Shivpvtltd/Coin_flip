@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Task Guru - Premium Coin Flip</title>
+    <link rel="stylesheet" href="1.css">
+    <!-- Telegram Web App Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    
+    <div id="toast-notification"></div>
+
+    <main class="game-container">
+        
+        <header class="game-header">
+            <h1 class="game-title">Task Guru</h1>
+            <div class="wallet-container">
+                <div class="wallet-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21,18V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5A2,2 0 0,1 5,3H19A2,2 0 0,1 21,5V6H12C10.89,6 10,6.9 10,8V16A2,2 0 0,0 12,18H21M12,16H22V8H12V16M16,13.5A1.5,1.5 0 0,1 14.5,12A1.5,1.5 0 0,1 16,10.5A1.5,1.5 0 0,1 17.5,12A1.5,1.5 0 0,1 16,13.5Z" /></svg>
+                </div>
+                <span class="wallet-amount" id="wallet-amount">Loading...</span>
+            </div>
+        </header>
+        
+        <div class="main-content-area">
+            <!-- ✅ ADDED: Countdown Display Element -->
+            <div id="countdown-display"></div>
+
+            <div class="coin-area">
+                <div id="coin-wrapper">
+                    <div id="coin">
+                        <div class="coin-face heads">H</div>
+                        <div class="coin-face tails">T</div>
+                    </div>
+                </div>
+                <div id="result-text"> </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="controls">
+                    <div class="bet-controls"> 
+                        <button class="bet-control-btn" id="bet-min">MIN</button>
+                        <button class="bet-control-btn" id="bet-minus">-</button>
+                        <div class="bet-input-wrapper">
+                            <span>₹</span>
+                            <input type="number" id="bet-amount" value="10">
+                        </div>
+                        <button class="bet-control-btn" id="bet-plus">+</button>
+                        <button class="bet-control-btn" id="bet-max">MAX</button>
+                    </div>
+
+                    <div class="choice-buttons">
+                        <button class="btn" id="heads-button">Heads</button>
+                        <button class="btn" id="tails-button">Tails</button>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h3>Recent Results</h3>
+                    <ol id="history-list"></ol>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+    
+    <script src="1.js"></script>
+</body>
+</html>
